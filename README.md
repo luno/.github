@@ -4,7 +4,7 @@
 
 ## About Us
 
-Luno is a leading global cryptocurrency company that provides a secure and user-friendly platform for buying, selling, and storing digital currencies. With a mission to bring the benefits of digital currencies to everyone, Luno empowers individuals and businesses to access, manage, and invest in cryptocurrencies with ease.
+Luno is a leading crypto investment app that enables you to buy, store and explore crypto securely – no experience needed. We’re committed to putting the power of cryptocurrency in everyone's hands safely and responsibly. Since 2013, we’ve helped millions of people around the world invest safely in crypto. We do this by building products and features that are simple to use and meet stringent legal, risk and technical security standards.
 
 To learn more about Luno and its range of services, please visit our official website: [luno.com](https://www.luno.com/).
 
