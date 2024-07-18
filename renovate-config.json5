@@ -7,7 +7,7 @@
   "branchConcurrentLimit": 3,
   "labels":["Bot::Renovate"],
   "semanticCommits":  "disabled",
-  "commitMessagePrefix": "renovate:"
+  "commitMessagePrefix": "renovate:",
   "reviewers": [
     "echarrod"
   ],
