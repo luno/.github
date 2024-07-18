@@ -8,4 +8,11 @@
   "labels":["Bot::Renovate"],
   "semanticCommits":  "disabled",
   "commitMessagePrefix": "renovate:"
+  "reviewers": [
+    "echarrod"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ]
 }
