@@ -1,5 +1,10 @@
 # Contribution Guidelines
-We welcome feedback, bug reports, and pull requests!
+We welcome contributions from the community! Whether you're fixing a bug, adding a feature, or improving documentation, your contributions help us improve this project for everyone!
+
+## Discussions
+If you're unsure about anything, or are not sure if a change should be made, feel free to ask questions by opening a discussion.
+
+## Pull Requests
 For pull requests (PRs), please stick to the following guidelines:
 * Before submitting a PR, verify that an issue exists that describes the bug fix or feature you want to contribute. If there's no issue yet, please create one.
 * Fork the repo on your GitHub user account, make code changes there, and then create a PR against the `main` branch.
@@ -9,17 +14,17 @@ For pull requests (PRs), please stick to the following guidelines:
 * Document newly introduced methods and classes with godoc-style comments, and add inline comments to code that is not self-documenting.
 * Separate unrelated changes into multiple PRs.
 * Commit messages should follow the conventions outlined at https://www.conventionalcommits.org/.
-### Hooks
+#### Hooks
 Install pre-commit hooks before committing anything. After installing pre-commit (see [here](https://pre-commit.com/#install) for instructions), you can do this with:
 ```shell
 pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 Commits that have not run through pre-commit will be rejected, so please don’t skip them!
 
-## Creating the PR
-### PR Title
+### Creating the PR
+#### PR Title
 Please follow the [Conventional Commits](https://www.conventionalcommits.org/) guidelines for PR titles (and commit titles)
-### PR Description
+#### PR Description
 Please split the PR description into the categories defined by https://keepachangelog.com, for example:
 ```
 ### Added
