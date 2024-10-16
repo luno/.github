@@ -23,7 +23,7 @@ Commits that have not run through pre-commit will be rejected, so please don’t
 
 ### Creating the PR
 #### PR Title
-Please follow the [Conventional Commits](https://www.conventionalcommits.org/) guidelines for PR titles (and commit titles)
+Please follow the [Conventional Commits](https://www.conventionalcommits.org/) guidelines for PR titles (and commit titles).
 #### PR Description
 Please split the PR description into the categories defined by https://keepachangelog.com, for example:
 ```
