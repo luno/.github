@@ -13,7 +13,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Tested versions
+      label: Tested Versions
       description: |
         To properly fix a bug, we need to identify if the bug was recently introduced, or if it was always present.
         - Please specify (if applicable) the release version you found the issue in, or the **Git commit hash** if using a development branch.
@@ -25,7 +25,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Issue description
+      label: Issue Description
       description: |
         Describe your issue briefly. What doesn't work, and how do you expect it to work instead?
         You can format code blocks or logs with <code>\`\`\`</code> tags, on separate lines before and after the text. (Use <code>\`\`\`go</code> to add Go syntax highlighting.)
@@ -35,7 +35,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Steps to reproduce
+      label: Steps to Reproduce
       description: |
         List of steps or sample code that reproduces the issue. Having reproducible issues is a prerequisite for contributors to be able to solve them.
         If you include a minimal reproduction project below, you can detail how to use it here.
@@ -44,7 +44,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Minimal reproduction project (MRP)
+      label: Minimal Reproduction Project (MRP)
       description: |
         - A small project which reproduces the issue, with no unnecessary files included.
         - Having an MRP is appreciated by contributors to be able to reproduce the bug in the same way that you are experiencing it. When testing a potential fix for the issue, contributors will use the MRP to validate that the fix is working as intended.
