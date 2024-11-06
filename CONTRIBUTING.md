@@ -14,12 +14,6 @@ For pull requests (PRs), please stick to the following guidelines:
 * Document newly introduced methods and classes with godoc-style comments, and add inline comments to code that is not self-documenting.
 * Separate unrelated changes into multiple PRs.
 * Commit messages should follow the conventions outlined at https://www.conventionalcommits.org/.
-#### Hooks
-Install pre-commit hooks before committing anything. After installing pre-commit (see [here](https://pre-commit.com/#install) for instructions), you can do this with:
-```shell
-pre-commit install --hook-type pre-commit --hook-type pre-push
-```
-Commits that have not run through pre-commit will be rejected, so please don’t skip them!
 
 ### Creating the PR
 #### PR Title
