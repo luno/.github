@@ -5,9 +5,9 @@
 
 <!-- You can erase any parts of this template not applicable to your Pull Request. -->
 ## Checklist before requesting a review
-- [ ] If it's a non-trivial change, I've created a new [issue](../issues) first
+- [ ] If it's a non-trivial change, I've linked a new or existing [issue](../issues) to this PR
 - [ ] I have performed a self-review of my code
-- [ ] I have added thorough tests, if appropriate.
+- [ ] I have added thorough tests, if appropriate
 
 ## New Feature Submissions:
 
