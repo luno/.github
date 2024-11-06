@@ -7,19 +7,13 @@ If you're unsure about anything, or are not sure if a change should be made, fee
 ## Pull Requests
 For pull requests (PRs), please stick to the following guidelines:
 * Before submitting a PR, verify that an issue exists that describes the bug fix or feature you want to contribute. If there's no issue yet, please create one.
-* Fork the repo on your GitHub user account, make code changes there, and then create a PR against the `main` branch.
+* If you don't have access to the repo, fork to your on your GitHub user account, make code changes there, and then create a PR against the `main` branch.
 * Add tests for any new features or bug fixes. Ideally, each PR increases the test coverage. We have a quality gate that checks.
 * Follow the existing code style (follow [Effective Go](https://go.dev/doc/effective_go) where no obvious convention exists).
 * Use the pull request template provided, and fill in all the details you can.
 * Document newly introduced methods and classes with godoc-style comments, and add inline comments to code that is not self-documenting.
 * Separate unrelated changes into multiple PRs.
 * Commit messages should follow the conventions outlined at https://www.conventionalcommits.org/.
-#### Hooks
-Install pre-commit hooks before committing anything. After installing pre-commit (see [here](https://pre-commit.com/#install) for instructions), you can do this with:
-```shell
-pre-commit install --hook-type pre-commit --hook-type pre-push
-```
-Commits that have not run through pre-commit will be rejected, so please don’t skip them!
 
 ### Creating the PR
 #### PR Title
