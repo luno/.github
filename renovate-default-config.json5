@@ -1,18 +1,20 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Onboarding preset for use with Luno's repos",
-  "extends": [
-    "config:base"
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  description: 'Onboarding preset for use with Luno\'s repos',
+  extends: [
+    'config:recommended',
   ],
-  "branchConcurrentLimit": 3,
-  "labels":["Bot::Renovate"],
-  "semanticCommits":  "disabled",
-  "commitMessagePrefix": "renovate:",
-  "reviewers": [
-    "echarrod"
+  branchConcurrentLimit: 3,
+  labels: [
+    'Bot::Renovate'
   ],
-  "postUpdateOptions": [
-    "gomodTidy",
-    "gomodUpdateImportPaths"
+  semanticCommits: 'disabled',
+  commitMessagePrefix: 'renovate:',
+  reviewers: [
+    'echarrod'
+  ],
+  postUpdateOptions: [
+    'gomodTidy',
+    'gomodUpdateImportPaths'
   ]
 }
