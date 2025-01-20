@@ -6,15 +6,33 @@
   ],
   branchConcurrentLimit: 3,
   labels: [
-    'Bot::Renovate'
+    'Bot::Renovate',
   ],
   semanticCommits: 'disabled',
   commitMessagePrefix: 'renovate:',
   reviewers: [
-    'echarrod'
+    'echarrod',
   ],
   postUpdateOptions: [
     'gomodTidy',
-    'gomodUpdateImportPaths'
-  ]
+    'gomodUpdateImportPaths',
+  ],
+  packageRules: [
+    {
+      "packageRules": [
+        {
+          "description": 'Opt-out minimum Go version updates: https://github.com/renovatebot/renovate/issues/16715',
+          "matchManagers": [
+            'gomod',
+          ],
+          // We don't want to update the minimum Go version, this isn't _all_ Go updates,
+          // it's updates of type "golang" (i.e. Go version).
+          "matchDepTypes": [
+            'golang',
+          ],
+          "enabled": false,
+        },
+      ],
+    },
+  ],
 }
