@@ -31,6 +31,7 @@
       enabled: false,
     },
     {
+      description: 'Auto-merge under specific scenarios',
       autoMerge: true,
       // Don't auto-merge for packages < 1.0.0, as these can make breaking changes too, see https://semver.org/
       matchCurrentVersion: '!/^v?0/',
@@ -49,22 +50,22 @@
             '^package-lock'
           ],
           enabled: true
-        },
-        {
-          matchManagers: [
-            'gomod'
-          ],
-          // Don't auto-merge for major or minor updates.
-          matchUpdateTypes: [
-            'patch',
-            'digest'
-          ],
-          enabled: true
-        }
       ],
-      addLabels: [
-        'Auto-merge',
-      ]
+      enabled: true,
+    },
+    {
+      matchManagers: [
+        'gomod',
+      ],
+      // Don't auto-merge for major or minor updates.
+      matchUpdateTypes: [
+        'patch',
+        'digest',
+      ],
+      enabled: true,
     }
+  ],
+  addLabels: [
+    'Auto-merge',
   ],
 }
