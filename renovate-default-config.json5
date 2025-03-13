@@ -31,38 +31,40 @@
       enabled: false,
     },
     {
-      description: 'Auto-merge package-lock and GitHub actions',
       autoMerge: true,
-      addLabels: [
-        'Auto-merge',
-      ],
       // Don't auto-merge for packages < 1.0.0, as these can make breaking changes too, see https://semver.org/
       matchCurrentVersion: '!/^v?0/',
       // Rebase before auto-merging, to match our repo requirements.
       rebaseWhen: 'behind-base-branch',
-      matchPackagePatterns: [
-        '^github-actions.*',
-        '^package-lock',
+      autoMergePattern: '^renovate:\\s?(minor|digest)\\s?(\\(|$)',
+      autoMergePackagePatterns: [
+        {
+          matchPackageNames: [
+            '^github-actions.*'
+          ],
+          enabled: true
+        },
+        {
+          matchPackageNames: [
+            '^package-lock'
+          ],
+          enabled: true
+        },
+        {
+          matchManagers: [
+            'gomod'
+          ],
+          // Don't auto-merge for major or minor updates.
+          matchUpdateTypes: [
+            'patch',
+            'digest'
+          ],
+          enabled: true
+        }
       ],
-      enabled: true,
-
-    },
-    {
-      description: 'Auto-merge patch + digest gomod updates',
-      autoMerge: true,
       addLabels: [
         'Auto-merge',
-      ],
-      matchManagers: [
-        'gomod',
-      ],
-      matchCurrentVersion: '!/^v?0/',
-      // Don't auto-merge for major or minor updates.
-      matchUpdateTypes: [
-        'patch',
-        'digest',
-      ],
-      enabled: true,
+      ]
     }
   ],
 }
