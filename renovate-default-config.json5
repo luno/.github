@@ -54,6 +54,22 @@
       enabled: true,
     },
     {
+      description: 'Auto-merge Luno dependencies',
+      autoMerge: true,
+      matchPackagePatterns: [
+        '^github.com/luno/.*',
+      ],
+      matchManagers: [
+        'gomod',
+      ],
+      // Only auto-merge patch and digest updates for Luno dependencies
+      matchUpdateTypes: [
+        'patch',
+        'digest',
+      ],
+      enabled: true,
+    },
+    {
       matchManagers: [
         'gomod',
       ],
