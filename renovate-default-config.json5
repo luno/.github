@@ -19,20 +19,50 @@
   ],
   packageRules: [
     {
-      "packageRules": [
-        {
-          "description": 'Opt-out minimum Go version updates: https://github.com/renovatebot/renovate/issues/16715',
-          "matchManagers": [
-            'gomod',
-          ],
-          // We don't want to update the minimum Go version, this isn't _all_ Go updates,
-          // it's updates of type "golang" (i.e. Go version).
-          "matchDepTypes": [
-            'golang',
-          ],
-          "enabled": false,
-        },
+      description: 'Opt-out minimum Go version updates: https://github.com/renovatebot/renovate/issues/16715',
+      matchManagers: [
+        'gomod',
       ],
+      // We don't want to update the minimum Go version, this isn't _all_ Go updates,
+      // it's updates of type "golang" (i.e. Go version).
+      matchDepTypes: [
+        'golang',
+      ],
+      enabled: false,
     },
+    {
+      description: 'Auto-merge package-lock and GitHub actions',
+      autoMerge: true,
+      addLabels: [
+        'Auto-merge',
+      ],
+      // Don't auto-merge for packages < 1.0.0, as these can make breaking changes too, see https://semver.org/
+      matchCurrentVersion: '!/^v?0/',
+      // Rebase before auto-merging, to match our repo requirements.
+      rebaseWhen: 'behind-base-branch',
+      matchPackagePatterns: [
+        '^github-actions.*',
+        '^package-lock',
+      ],
+      enabled: true,
+
+    },
+    {
+      description: 'Auto-merge patch + digest gomod updates',
+      autoMerge: true,
+      addLabels: [
+        'Auto-merge',
+      ],
+      matchManagers: [
+        'gomod',
+      ],
+      matchCurrentVersion: '!/^v?0/',
+      // Don't auto-merge for major or minor updates.
+      matchUpdateTypes: [
+        'patch',
+        'digest',
+      ],
+      enabled: true,
+    }
   ],
 }
