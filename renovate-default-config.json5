@@ -42,7 +42,11 @@
       matchPackagePatterns: [
         '^github-actions.*',
         '^package-lock'
-      ]
+      ],
+      matchUpdateTypes: [
+        'patch',
+        'digest',
+      ],
     },
     {
       description: 'Auto-merge patch + digest gomod updates',
@@ -71,6 +75,10 @@
       ],
       matchManagers: [
         'gomod',
+      ],
+      matchUpdateTypes: [
+        'patch',
+        'digest',
       ],
     },
   ],
