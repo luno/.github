@@ -6,7 +6,27 @@ description: 'Bulk update Go version across all repositories in a GitHub organiz
 
 # Bulk Go Version Update Task
 
-I need to update the Go version to `${input:majorMinorVersion:1.24}.${input:patchVersion:3}` across all repositories in the GitHub organization `${input:organization:luno}`. Please help me create pull requests for all repositories that need updating.
+## Go Version Management Instructions
+
+### Go Version Updates
+- Always update to the latest patch version within a major.minor release.
+- Preserve exact formatting and spacing in go.mod files.
+- Ensure go.mod files end with a newline character.
+- Only modify the `go` directive line, leave all other content unchanged.
+
+### Commit Messages
+- Use the format: `gomod: Update Go version to X.Y.Z` (e.g., `gomod: Update Go version to 1.24.3`)
+- Keep commit messages concise and descriptive
+
+### PR Guidelines
+- Use descriptive titles that indicate the version change
+- Include the rationale for the update in PR descriptions
+- Add label `AI::Created` for automated PRs
+- Reference the specific Go version being updated to and from
+
+## Task Description
+
+I need to update the Go version to `${input:majorMinorVersion}.${input:patchVersion}` across all repositories in the GitHub organization `${input:organization}`. Please help me create pull requests for all repositories that need updating.
 
 ## Requirements
 
@@ -33,7 +53,7 @@ For each repository that needs updating, create a pull request with these specif
 **PR Description:**
 ```markdown
 ## Changed
-- Updated `go` directive in `go.mod` from `go X.Y.Z` to `go ${input:majorMinorVersion}.${input:patchVersion}`
+- Updated `go` directive in `go.mod` from `go <current_version>` to `go ${input:majorMinorVersion}.${input:patchVersion}`
 
 ## Rationale
 - Go ${input:majorMinorVersion}.${input:patchVersion} is the latest patch release of Go ${input:majorMinorVersion}
@@ -81,5 +101,5 @@ Use the #githubRepo tool to access the target organization repositories. When pr
 
 Run this prompt in CoPilot with:
 ```shell
-/go-version-update organization=luno majorMinorVersion=1.24 patchVersion=3 branchAuthor=<yourName>`
+/go-version-update organization=luno majorMinorVersion=1.24 patchVersion=3 branchAuthor=<yourName>
 ```
