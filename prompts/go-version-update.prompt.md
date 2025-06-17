@@ -1,6 +1,6 @@
 ---
 mode: 'agent'
-tools: ['githubRepo', 'codebase']
+tools: ['search_repositories', 'get_pull_request', 'create_pull_request', 'update_pull_request', 'create_or_update_file', 'Codebase']
 description: 'Bulk update Go version across all repositories in a GitHub organization'
 ---
 
