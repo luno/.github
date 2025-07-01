@@ -9,16 +9,20 @@ description: 'Bulk update Go version across all repositories in a GitHub organiz
 ## Go Version Management Instructions
 
 ### Go Version Updates
+
 - Always update to the latest patch version within a major.minor release.
 - Preserve exact formatting and spacing in go.mod files.
 - Ensure go.mod files end with a newline character.
 - Only modify the `go` directive line, leave all other content unchanged.
+- Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. By specifying `1` we are targeting the latest version, which should be the version we are setting to. We should add the latest minor version before that too. e.g. if we are updating to `1.24.3`, we should set the workflow to use `'1.23, '1'` in the version matrix.
 
 ### Commit Messages
+
 - Use the format: `gomod: Update Go version to X.Y.Z` (e.g., `gomod: Update Go version to 1.24.3`)
 - Keep commit messages concise and descriptive
 
 ### PR Guidelines
+
 - Use descriptive titles that indicate the version change
 - Include the rationale for the update in PR descriptions
 - Add label `AI::Created` for automated PRs
@@ -38,12 +42,14 @@ I need to update the Go version to `${input:majorMinorVersion}.${input:patchVers
 ## Task Steps
 
 ### 1. Discovery Phase
+
 - Find all repositories in the `${input:organization}` organization that have `go.mod` files
 - Check the current Go version in each `go.mod` file
 - Skip archived repositories
 - Identify which repositories need updating vs which are already on Go `${input:majorMinorVersion}`.x
 
 ### 2. PR Creation Phase
+
 For each repository that needs updating, create a pull request with these specifications:
 
 **Branch naming:** `${input:branchAuthor}-go-version-update`
@@ -51,11 +57,14 @@ For each repository that needs updating, create a pull request with these specif
 **PR Title:** `gomod: Update Go version to ${input:majorMinorVersion}.${input:patchVersion}`
 
 **PR Description:**
+
 ```markdown
 ## Changed
+
 - Updated `go` directive in `go.mod` from `go <current_version>` to `go ${input:majorMinorVersion}.${input:patchVersion}`
 
 ## Rationale
+
 - Go ${input:majorMinorVersion}.${input:patchVersion} is the latest patch release of Go ${input:majorMinorVersion}
 - This ensures the project can update to other libraries that declare _their_ minimum version as ${input:majorMinorVersion}
 - Aligns with other ${input:organization} repositories that are already using Go ${input:majorMinorVersion}.x
@@ -64,6 +73,7 @@ For each repository that needs updating, create a pull request with these specif
 **Labels:** Add `AI::Created` label to each PR
 
 **File modifications:**
+
 - Only change the `go` directive line in `go.mod`
 - Preserve all other content exactly as-is
 - Ensure there's a newline at the end of the `go.mod` file
@@ -71,6 +81,7 @@ For each repository that needs updating, create a pull request with these specif
 ## Expected Output
 
 Please provide:
+
 1. **Discovery Summary:** List of all repositories found and their current Go versions
 2. **Update Plan:** Which repositories need updating vs which are already compliant
 3. **Execution:** Create PRs systematically, starting with the first repository as an example
@@ -93,6 +104,7 @@ Use the #githubRepo tool to access the target organization repositories. When pr
 - Provide a summary of any repositories that couldn't be processed
 
 ## Variables Available
+
 - `${workspaceFolder}` - Current workspace root
 - `${input:organization}` - GitHub organization name
 - `${input:majorMinorVersion}` - Major.minor version (e.g., 1.24)
@@ -100,6 +112,7 @@ Use the #githubRepo tool to access the target organization repositories. When pr
 - `${input:branchAuthor}` - Git username for branch naming
 
 Run this prompt in CoPilot with:
+
 ```shell
 /go-version-update organization=luno majorMinorVersion=1.24 patchVersion=3 branchAuthor=<yourName>
 ```
