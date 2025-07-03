@@ -1,14 +1,14 @@
-# GitHub Copilot License Management System
+# GitHub Copilot Licence Management System
 
-This document explains how the automated GitHub Copilot license management system works for the Luno organisation.
+This document explains how the automated GitHub Copilot licence management system works for the Luno organisation.
 
 ## System Overview
 
-The automated system manages GitHub Copilot licenses by:
+The automated system manages GitHub Copilot licences by:
 
-- ✅ **Daily monitoring** of Copilot license usage (every day at 9am UTC)
+- ✅ **Daily monitoring** of Copilot licence usage (every day at 9am UTC)
 - ✅ **Automatic reminders** for users who haven't used Copilot for **14+ days**
-- ✅ **License revocation** for users inactive for **30+ days**
+- ✅ **Licence revocation** for users inactive for **30+ days**
 - ✅ **Issue tracking** with assignments to inactive users
 - ✅ **Automatic issue closure** when users become active again
 - ✅ **Duplicate prevention** to avoid multiple reminders for the same user
@@ -38,11 +38,11 @@ The automated workflow operates on a daily schedule and follows this process:
 The system uses a standardised message template *stored in a repository variable*:
 
 ```markdown
-## 🤖 GitHub Copilot License Reminder
+## 🤖 GitHub Copilot Licence Reminder
 
 Hi there! 👋
 
-We noticed you haven't used your assigned license for **GitHub Copilot** and it has been inactive for a period of 14 days. Here are some resources that might help you get started:
+We noticed you haven't used your assigned licence for **GitHub Copilot** and it has been inactive for a period of 14 days. Here are some resources that might help you get started:
 
 ### 🚀 Getting Started
 * **Setup Guide**: If you haven't yet set up Copilot in your environment, see [Setting up GitHub Copilot for yourself](https://docs.github.com/en/copilot/setting-up-github-copilot/setting-up-github-copilot-for-yourself)
@@ -61,10 +61,10 @@ If you're having trouble getting started or have questions about using Copilot e
 - Ask in our internal development channels
 
 ### ⚡ Next Steps
-If you no longer need access to GitHub Copilot, please let us know in this issue. If your license remains inactive for a further 16 days (30 total), we'll revoke it to free up access for another user.
+If you no longer need access to GitHub Copilot, please let us know in this issue. If your licence remains inactive for a further 16 days (30 total), we'll revoke it to free up access for another user.
 
 ---
-*This is an automated reminder sent daily to help ensure our Copilot licenses are being used effectively.*
+*This is an automated reminder sent daily to help ensure our Copilot licences are being used effectively.*
 ```
 
 ## System Logic & Automation
@@ -74,7 +74,7 @@ If you no longer need access to GitHub Copilot, please let us know in this issue
 The system operates on a two-stage approach:
 
 - **14 days inactive**: First reminder issue created with helpful resources and 16-day warning
-- **30 days inactive**: License automatically revoked and reminder issue closed
+- **30 days inactive**: Licence automatically revoked and reminder issue closed
 - **Schedule**: Runs every day at 9am UTC via GitHub Actions
 - **Manual trigger**: Available through the "Run workflow" button
 - **Auto-closure**: Issues are automatically closed when users become active again
@@ -85,11 +85,11 @@ The system manages GitHub issues with the following behaviour:
 
 **Issue Creation (14 days inactive):**
 
-- Creates issues with title: "Reminder about your GitHub Copilot license"
+- Creates issues with title: "Reminder about your GitHub Copilot licence"
 - Assigns issues directly to the inactive user
 - Tags issues with the `copilot-reminder` label
 - Includes comprehensive setup and troubleshooting resources
-- Warns users about license revocation in 16 days
+- Warns users about licence revocation in 16 days
 
 **Duplicate Prevention:**
 
@@ -100,22 +100,22 @@ The system manages GitHub issues with the following behaviour:
 **Automatic Issue Closure:**
 
 - **When users become active**: Issues are closed with a celebratory comment
-- **When licenses are revoked**: Issues are closed with a revocation notice
+- **When licences are revoked**: Issues are closed with a revocation notice
 - Maintains a clean issue tracker with current status
 
 ## User Journey Examples
 
 ### Scenario 1: User Becomes Active
 
-- **Day 1**: User gets assigned Copilot license
-- **Day 14**: User hasn't used license → Reminder issue created with 16-day warning
+- **Day 1**: User gets assigned Copilot licence
+- **Day 14**: User hasn't used licence → Reminder issue created with 16-day warning
 - **Day 18**: User starts using Copilot → Issue automatically closed with celebration message
 
-### Scenario 2: License Revocation
+### Scenario 2: Licence Revocation
 
-- **Day 1**: User gets assigned Copilot license  
-- **Day 14**: User hasn't used license → Reminder issue created with 16-day warning
-- **Day 30**: User still hasn't used license → License revoked, issue closed with notice
+- **Day 1**: User gets assigned Copilot licence  
+- **Day 14**: User hasn't used licence → Reminder issue created with 16-day warning
+- **Day 30**: User still hasn't used licence → Licence revoked, issue closed with notice
 
 **Workflow Logs:**
 

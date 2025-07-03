@@ -41,7 +41,7 @@ jobs:
             CREATED_AT=$(echo "$seat" | jq -r '.created_at')
 
             # List all open issues with label 'copilot-reminder' for this user
-            EXISTING_ISSUES=$(gh issue list --repo ${{ github.repository }} --assignee $LOGIN --label 'copilot-reminder' --json id)
+            EXISTING_ISSUES=$(gh issue list --repo ${{ github.repository }} --assignee $LOGIN --label 'copilot-reminder' --json number)
 
             # Get last activity date and convert dates to seconds since epoch for comparison
             if [ "$LAST_ACTIVITY" = "null" ]; then

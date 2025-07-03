@@ -23,13 +23,13 @@ The `.github` repository provides organisation-wide defaults that apply to all r
 
 ## 🤖 Automated Tools
 
-### GitHub Copilot License Management
+### GitHub Copilot Licence Management
 
-We maintain an automated system for managing GitHub Copilot licenses:
+We maintain an automated system for managing GitHub Copilot licences:
 
-- **Daily monitoring** of license usage across the organisation
+- **Daily monitoring** of licence usage across the organisation
 - **Automatic reminders** for inactive users (14-day threshold)
-- **License revocation** for prolonged inactivity (30-day threshold)
-- **Issue tracking** for license optimisation
+- **Licence revocation** for prolonged inactivity (30-day threshold)
+- **Issue tracking** for licence optimisation
 
 📋 **Management Guide**: [GitHub Copilot Reminder Setup](./docs/copilot-reminder-setup.md)
