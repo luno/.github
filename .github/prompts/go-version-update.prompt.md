@@ -14,7 +14,7 @@ description: 'Bulk update Go version across all repositories in a GitHub organis
 - Preserve exact formatting and spacing in go.mod files.
 - Ensure go.mod files end with a newline character.
 - Only modify the `go` directive line, leave all other content unchanged.
-- Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. By specifying `1` we are targeting the latest version, which should be the version we are setting to. We should add the latest minor version before that too. e.g. if we are updating to `1.24.3`, we should set the workflow to use `'1.23, '1'` in the version matrix.
+- Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. By specifying `1` we are targeting the latest version, which should be the version we are setting to. We should add the latest minor version before that too. e.g. if we are updating to `1.24.3`, we should set the workflow to use `'1.23', '1'` in the version matrix.
 
 ### Commit Messages
 
@@ -52,7 +52,7 @@ I need to update the Go version to `${input:majorMinorVersion}.${input:patchVers
 
 For each repository that needs updating, create a pull request with these specifications:
 
-**Branch naming:** `${input:branchAuthor}-go-version-update`
+**Branch naming:** `${input:branchAuthor}-go${input:majorMinorVersion}-${input:patchVersion}-update`
 **Commit message:** `gomod: Update Go version to ${input:majorMinorVersion}.${input:patchVersion}`
 **PR Title:** `gomod: Update Go version to ${input:majorMinorVersion}.${input:patchVersion}`
 
