@@ -1,7 +1,7 @@
 ---
 mode: 'agent'
 tools: ['search_repositories', 'get_pull_request', 'create_pull_request', 'update_pull_request', 'create_or_update_file', 'Codebase']
-description: 'Bulk update Go version across all repositories in a GitHub organization'
+description: 'Bulk update Go version across all repositories in a GitHub organisation'
 ---
 
 # Bulk Go Version Update Task
@@ -30,11 +30,11 @@ description: 'Bulk update Go version across all repositories in a GitHub organiz
 
 ## Task Description
 
-I need to update the Go version to `${input:majorMinorVersion}.${input:patchVersion}` across all repositories in the GitHub organization `${input:organization}`. Please help me create pull requests for all repositories that need updating.
+I need to update the Go version to `${input:majorMinorVersion}.${input:patchVersion}` across all repositories in the GitHub organisation `${input:organisation}`. Please help me create pull requests for all repositories that need updating.
 
 ## Requirements
 
-- Target Organization: `${input:organization}`
+- Target Organisation: `${input:organisation}`
 - Target Go Version: `${input:majorMinorVersion}.${input:patchVersion}`
 - Update Condition: Only update repositories where the current Go version doesn't already start with `${input:majorMinorVersion}`
 - Branch Author: `${input:branchAuthor}`
@@ -43,7 +43,7 @@ I need to update the Go version to `${input:majorMinorVersion}.${input:patchVers
 
 ### 1. Discovery Phase
 
-- Find all repositories in the `${input:organization}` organization that have `go.mod` files
+- Find all repositories in the `${input:organisation}` organisation that have `go.mod` files
 - Check the current Go version in each `go.mod` file
 - Skip archived repositories
 - Identify which repositories need updating vs which are already on Go `${input:majorMinorVersion}`.x
@@ -67,7 +67,7 @@ For each repository that needs updating, create a pull request with these specif
 
 - Go ${input:majorMinorVersion}.${input:patchVersion} is the latest patch release of Go ${input:majorMinorVersion}
 - This ensures the project can update to other libraries that declare _their_ minimum version as ${input:majorMinorVersion}
-- Aligns with other ${input:organization} repositories that are already using Go ${input:majorMinorVersion}.x
+- Aligns with other ${input:organisation} repositories that are already using Go ${input:majorMinorVersion}.x
 ```
 
 **Labels:** Add `AI::Created` label to each PR
@@ -89,7 +89,7 @@ Please provide:
 
 ## Context Requirements
 
-Use the #githubRepo tool to access the target organization repositories. When processing each repository:
+Use the #search_repositories tool to access the target organisation repositories. When processing each repository:
 
 1. Check if the repository is archived (skip if archived)
 2. Look for `go.mod` in the root directory
@@ -106,7 +106,7 @@ Use the #githubRepo tool to access the target organization repositories. When pr
 ## Variables Available
 
 - `${workspaceFolder}` - Current workspace root
-- `${input:organization}` - GitHub organization name
+- `${input:organisation}` - GitHub organisation name
 - `${input:majorMinorVersion}` - Major.minor version (e.g., 1.24)
 - `${input:patchVersion}` - Patch version (e.g., 3)
 - `${input:branchAuthor}` - Git username for branch naming
@@ -114,5 +114,5 @@ Use the #githubRepo tool to access the target organization repositories. When pr
 Run this prompt in CoPilot with:
 
 ```shell
-/go-version-update organization=luno majorMinorVersion=1.24 patchVersion=3 branchAuthor=<yourName>
+/go-version-update organisation=luno majorMinorVersion=1.24 patchVersion=3 branchAuthor=<yourName>
 ```
