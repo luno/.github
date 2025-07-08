@@ -75,8 +75,11 @@ For each repository that needs updating, create a pull request with these specif
 
 **File modifications:**
 
-- Only change the `go` directive line in `go.mod`
-- Preserve all other content exactly as-is
+- In each affected repository:
+  - Update only the `go` directive line in `go.mod`
+  - _If a workflow file matching `.github/workflows/**.yml` contains a Go
+    version matrix_, update that matrix as described above
+- Preserve spacing/formatting and ensure each modified file ends with a newline
 - Ensure there's a newline at the end of the `go.mod` file
 
 ## Expected Output
