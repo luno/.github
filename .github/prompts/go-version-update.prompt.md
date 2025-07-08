@@ -14,7 +14,8 @@ description: 'Bulk update Go version across all repositories in a GitHub organis
 - Do not apply patch-level updates if the major.minor version is unchanged.
 - Preserve exact formatting and spacing in go.mod files.
 - Ensure go.mod files end with a newline character.
-- Only modify the `go` directive line, leave all other content unchanged.
+- In each `go.mod` file, modify **only** the `go` directive line; leave all
+  other content unchanged.
 - Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. 
   - By specifying `1` we are targeting the latest version, which should be the version we are setting to. 
   - We should add the latest minor version before that too, so we should set the workflow to use `'${previousMinorVersion}', '1'` in the version matrix.
