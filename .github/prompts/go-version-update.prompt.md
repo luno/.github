@@ -15,7 +15,9 @@ description: 'Bulk update Go version across all repositories in a GitHub organis
 - Preserve exact formatting and spacing in go.mod files.
 - Ensure go.mod files end with a newline character.
 - Only modify the `go` directive line, leave all other content unchanged.
-- Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. By specifying `1` we are targeting the latest version, which should be the version we are setting to. We should add the latest minor version before that too. e.g. if we are updating to `1.24.3`, we should set the workflow to use `'${previousMinorVersion}', '1'` in the version matrix.
+- Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. 
+  - By specifying `1` we are targeting the latest version, which should be the version we are setting to. 
+  - We should add the latest minor version before that too, so we should set the workflow to use `'${previousMinorVersion}', '1'` in the version matrix.
 
 ### Commit Messages
 
@@ -114,6 +116,7 @@ Use the #search_repositories tool to access the target organisation repositories
 - `${input:majorMinorVersion}` - Major.minor version (e.g., 1.24)
 - `${input:patchVersion}` - Patch version (e.g., 3)
 - `${input:branchAuthor}` - Git username for branch naming
+- `${previousMinorVersion}` – *derived* value: one minor release behind `${input:majorMinorVersion}` (e.g. `1.23` when the target is `1.24`)
 
 Run this prompt in CoPilot with:
 
