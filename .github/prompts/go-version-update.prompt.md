@@ -10,7 +10,8 @@ description: 'Bulk update Go version across all repositories in a GitHub organis
 
 ### Go Version Updates
 
-- Always update to the latest patch version within a major.minor release.
+- Only update the go directive if the major.minor version is being updated (e.g., from 1.23.x to 1.24.x).
+- Do not apply patch-level updates if the major.minor version is unchanged.
 - Preserve exact formatting and spacing in go.mod files.
 - Ensure go.mod files end with a newline character.
 - Only modify the `go` directive line, leave all other content unchanged.
@@ -36,7 +37,7 @@ I need to update the Go version to `${input:majorMinorVersion}.${input:patchVers
 
 - Target Organisation: `${input:organisation}`
 - Target Go Version: `${input:majorMinorVersion}.${input:patchVersion}`
-- Update Condition: Only update repositories where the current Go version doesn't already start with `${input:majorMinorVersion}`
+- Update Condition: Only update repositories where the current Go version’s major.minor does not match `${input:majorMinorVersion}`. Patch-level updates are not applied if the major.minor version is already correct.
 - Branch Author: `${input:branchAuthor}`
 
 ## Task Steps
