@@ -17,9 +17,8 @@ description: 'Bulk update Go version across all repositories in a GitHub organis
 - In each `go.mod` file, modify **only** the `go` directive line; leave all
   other content unchanged.
 - Often there are unit tests in .github/workflows, these will need to be updated to use the new Go version as well. 
-  - By specifying `1` we are targeting the latest version, which should be the version we are setting to. 
-  - We should add the latest minor version before that too, so we should set the workflow to use `'${previousMinorVersion}', '1'` in the version matrix.
-
+  - By specifying `1` we are targeting the latest version, which should be the version we are setting to.
+  - The version matrix should be an explicit YAML list: `['${previousMinorVersion}', '1']`.
 ### Commit Messages
 
 - Use the format: `gomod: Update Go version to X.Y.Z` (e.g., `gomod: Update Go version to 1.24.3`)
