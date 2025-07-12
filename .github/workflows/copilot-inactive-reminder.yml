@@ -85,7 +85,8 @@ jobs:
               
               echo "✅ Revoked Copilot seat for user $LOGIN"
               
-            elif [ "$REFERENCE_DATE" -lt "$REMINDER_THRESHOLD" ] && [ "$EXISTING_ISSUES" = "[]" ]; then
+            elif [ "$REFERENCE_DATE" -lt "$REMINDER_THRESHOLD" ] && \
+                 [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -eq 0 ]; then
               # 14+ days inactive - send reminder
               echo "⚠️  User $LOGIN has been inactive for 14+ days ($ACTIVITY_STATUS) - creating reminder issue"
 
