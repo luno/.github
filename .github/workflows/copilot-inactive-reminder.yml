@@ -74,7 +74,7 @@ jobs:
                 "/orgs/luno/copilot/billing/seats/$LOGIN"
               
               # Close any existing reminder issues with revocation notice
-              if [ "$EXISTING_ISSUES" != "[]" ]; then
+              if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
                 echo "$EXISTING_ISSUES" | jq -r '.[].number' | while read -r issue_number; do
                   gh issue close $issue_number \
                     --repo ${{ github.repository }} \
