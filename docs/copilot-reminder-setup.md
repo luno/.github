@@ -20,7 +20,7 @@ The system consists of several integrated components working together:
 ### Required Infrastructure
 
 - **Label**: `copilot-reminder` - Used to tag and track reminder issues
-- **Repository Secret**: `COPILOT_LICENSE_READ` - Contains personal access token with required permissions
+- **Repository Secret**: `COPILOT_UPDATE_TOKEN` - Personal access token used by the workflow
 - **Repository Variable**: `COPILOT_REMINDER_MESSAGE` - Stores the reminder message template
 - **GitHub Actions Workflow**: Automates the entire process daily
 
