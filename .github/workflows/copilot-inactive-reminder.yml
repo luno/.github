@@ -1,0 +1,131 @@
+# GitHub Copilot Inactive User Reminder Workflow
+# This workflow identifies users who haven't used their Copilot license and creates reminder issues
+
+name: Remind inactive users about GitHub Copilot license
+
+on:
+  # Run on demand (enables 'Run workflow' button on the Actions tab)
+  workflow_dispatch:
+  # Run the workflow every day at 9am UTC (daily schedule)
+  schedule:
+    - cron: '0 9 * * *'
+
+jobs:
+  check-inactive-users:
+    runs-on: ubuntu-latest
+
+    # Modify the default permissions granted to GITHUB_TOKEN
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Check last GitHub Copilot activity
+        id: check-last-activity
+        run: |
+          echo "🔍 Checking Copilot license usage for Luno organization..."
+          
+          # List all GitHub Copilot seat assignments for the organization
+          RESPONSE=$(gh api --paginate \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -H "Authorization: Bearer ${{ secrets.COPILOT_UPDATE_TOKEN }}" \
+            /orgs/luno/copilot/billing/seats | \
+            jq -s '{ seats: map(.seats[]) }')
+          
+          echo "📊 Found $(echo "$RESPONSE" | jq '.seats | length') total Copilot licenses"
+          echo "$RESPONSE" | jq -c '.seats[]' | while read -r seat; do
+            LOGIN=$(echo "$seat" | jq -r '.assignee.login')
+            LAST_ACTIVITY=$(echo "$seat" | jq -r '.last_activity_at')
+            CREATED_AT=$(echo "$seat" | jq -r '.created_at')
+
+            # List all open issues with label 'copilot-reminder' for this user
+            EXISTING_ISSUES=$(gh issue list --repo ${{ github.repository }} --assignee $LOGIN --label 'copilot-reminder' --json number)
+
+            # Get last activity date and convert dates to seconds since epoch for comparison
+            if [ "$LAST_ACTIVITY" = "null" ]; then
+              LAST_ACTIVITY_DATE=$(date -d "$CREATED_AT" +%s)
+              ACTIVITY_STATUS="never used (license assigned $(date -d "$CREATED_AT" '+%Y-%m-%d'))"
+              # Use creation date for never-used licenses
+              REFERENCE_DATE=$LAST_ACTIVITY_DATE
+            else
+              LAST_ACTIVITY_DATE=$(date -d "$LAST_ACTIVITY" +%s)
+              ACTIVITY_STATUS="last used $(date -d "$LAST_ACTIVITY" '+%Y-%m-%d')"
+              # Use last activity date for previously used licenses
+              REFERENCE_DATE=$LAST_ACTIVITY_DATE
+            fi
+            
+            # Calculate threshold dates
+            REMINDER_THRESHOLD=$(date -d "14 days ago" +%s)
+            REVOCATION_THRESHOLD=$(date -d "30 days ago" +%s)
+
+            # Handle different stages based on inactivity duration
+            if [ "$REFERENCE_DATE" -lt "$REVOCATION_THRESHOLD" ]; then
+              # 30+ days inactive - revoke the seat
+              echo "🚨 User $LOGIN has been inactive for 30+ days ($ACTIVITY_STATUS) - revoking seat"
+              
+              # Remove the user from Copilot
+              gh api \
+                -X DELETE \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                -H "Authorization: Bearer ${{ secrets.COPILOT_UPDATE_TOKEN }}" \
+                "/orgs/luno/copilot/billing/seats/$LOGIN"
+              
+              # Close any existing reminder issues with revocation notice
+              if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
+                echo "$EXISTING_ISSUES" | jq -r '.[].number' | while read -r issue_number; do
+                  gh issue close $issue_number \
+                    --repo ${{ github.repository }} \
+                    --comment "🚨 This GitHub Copilot license has been revoked due to 30 days of inactivity. If you need access again, please reach out to your team lead."
+                  echo "✅ Closed issue #$issue_number with revocation notice"
+                done
+              fi
+              
+              echo "✅ Revoked Copilot seat for user $LOGIN"
+              
+            elif [ "$REFERENCE_DATE" -lt "$REMINDER_THRESHOLD" ] && \
+                 [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -eq 0 ]; then
+              # 14+ days inactive - send reminder
+              echo "⚠️  User $LOGIN has been inactive for 14+ days ($ACTIVITY_STATUS) - creating reminder issue"
+
+              NEW_ISSUE_URL=$(gh issue create \
+                --title "Reminder about your GitHub Copilot license" \
+                --body "${{ vars.COPILOT_REMINDER_MESSAGE }}" \
+                --repo ${{ github.repository }} \
+                --assignee $LOGIN \
+                --label 'copilot-reminder')
+              
+              echo "✅ Created reminder issue: $NEW_ISSUE_URL"
+              
+            elif [ "$REFERENCE_DATE" -ge "$REMINDER_THRESHOLD" ] && \
+                 [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
+              # User became active again - close any open reminder issues
+              echo "🎉 User $LOGIN became active again ($ACTIVITY_STATUS) - closing reminder issues"
+              
+              echo "$EXISTING_ISSUES" | jq -r '.[].number' | while read -r issue_number; do
+                gh issue close $issue_number \
+                  --repo ${{ github.repository }} \
+                  --comment "🎉 Great! This user is now actively using GitHub Copilot. Closing this reminder automatically."
+                echo "✅ Closed issue #$issue_number"
+              done
+            else
+              if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
+                echo "ℹ️  User $LOGIN still has an open reminder issue ($ACTIVITY_STATUS)"
+              else
+                echo "✅ User $LOGIN is active ($ACTIVITY_STATUS)"
+              fi
+            fi
+          done
+
+        # Set the GH_TOKEN, required for the 'gh issue' and 'gh api' commands
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_UPDATE_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "🎯 Copilot license management check completed"
+          echo "📝 Reminder issues created for users inactive 14+ days"
+          echo "🚨 Copilot seats revoked for users inactive 30+ days"
+          echo "🎉 Issues automatically closed for users who became active again"
+          echo "🔄 This workflow runs daily at 9am UTC"
