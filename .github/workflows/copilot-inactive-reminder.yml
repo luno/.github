@@ -99,7 +99,8 @@ jobs:
               
               echo "✅ Created reminder issue: $NEW_ISSUE_URL"
               
-            elif [ "$REFERENCE_DATE" -ge "$REMINDER_THRESHOLD" ] && [ "$EXISTING_ISSUES" != "[]" ]; then
+            elif [ "$REFERENCE_DATE" -ge "$REMINDER_THRESHOLD" ] && \
+                 [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
               # User became active again - close any open reminder issues
               echo "🎉 User $LOGIN became active again ($ACTIVITY_STATUS) - closing reminder issues"
               
@@ -110,7 +111,7 @@ jobs:
                 echo "✅ Closed issue #$issue_number"
               done
             else
-              if [ "$EXISTING_ISSUES" != "[]" ]; then
+              if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
                 echo "ℹ️  User $LOGIN still has an open reminder issue ($ACTIVITY_STATUS)"
               else
                 echo "✅ User $LOGIN is active ($ACTIVITY_STATUS)"
