@@ -80,7 +80,8 @@ jobs:
               set -e # Re-enable exit on error
 
               if [ $REVOKE_STATUS -ne 0 ]; then
-                if echo "$REVOKE_OUTPUT" | head -n1 | grep -q " 404 "; then
+                STATUS_CODE=$(echo "$REVOKE_OUTPUT" | head -n1 | awk '{print $2}')
+                if [ "$STATUS_CODE" = "404" ]; then
                   echo "ℹ️ User $LOGIN was already removed or not found, skipping revocation."
                 else
                   echo "🚨 Error revoking Copilot seat for user $LOGIN: $REVOKE_OUTPUT"
