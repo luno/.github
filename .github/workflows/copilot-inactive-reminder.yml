@@ -70,7 +70,8 @@ jobs:
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
                 -H "Authorization: Bearer ${{ secrets.COPILOT_UPDATE_TOKEN }}" \
-                "/orgs/luno/copilot/billing/seats/$LOGIN"
+                "/orgs/luno/copilot/billing/selected_users" \
+                -f selected_usernames[]="$LOGIN"
               
               # Close any existing reminder issues with revocation notice
               if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
