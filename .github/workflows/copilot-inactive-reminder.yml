@@ -108,7 +108,7 @@ jobs:
               echo "⚠️  User $LOGIN has been inactive for 14+ days ($ACTIVITY_STATUS) - creating reminder issue"
 
               NEW_ISSUE_URL=$(gh issue create \
-                --title "Reminder about your GitHub Copilot license" \
+                --title "Reminder about your GitHub Copilot license - $LOGIN" \
                 --body "${{ vars.COPILOT_REMINDER_MESSAGE }}" \
                 --repo ${{ github.repository }} \
                 --assignee $LOGIN \
