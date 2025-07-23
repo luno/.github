@@ -107,14 +107,28 @@ jobs:
               # 14+ days inactive - send reminder
               echo "⚠️  User $LOGIN has been inactive for 14+ days ($ACTIVITY_STATUS) - creating reminder issue"
 
-              NEW_ISSUE_URL=$(gh issue create \
+              set +e # Temporarily relax exit-on-error for the issue creation call
+              ISSUE_CREATE_OUTPUT=$(gh issue create \
                 --title "Reminder about your GitHub Copilot license - $LOGIN" \
                 --body "${{ vars.COPILOT_REMINDER_MESSAGE }}" \
                 --repo ${{ github.repository }} \
                 --assignee $LOGIN \
-                --label 'copilot-reminder')
-              
-              echo "✅ Created reminder issue: $NEW_ISSUE_URL"
+                --label 'copilot-reminder' 2>&1) # Redirect stderr to stdout
+              ISSUE_CREATE_STATUS=$?
+              set -e # Re-enable exit on error
+
+              if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
+                # Check if the error is due to the assignee not being found (HTTP 422 Unprocessable Entity)
+                if [ "$ISSUE_CREATE_STATUS" -eq 1 ] && echo "$ISSUE_CREATE_OUTPUT" | grep -q '"status":422'; then
+                  echo "⚠️  Could not create reminder issue for user $LOGIN: User not found. Proceeding with workflow."
+                else
+                  echo "🚨 Error creating reminder issue for user $LOGIN: $ISSUE_CREATE_OUTPUT"
+                  exit 1 # Exit with error for other issues
+                fi
+              else
+                NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | jq -r '.url') # Extract the URL from the last line of output
+                echo "✅ Created reminder issue: $NEW_ISSUE_URL"
+              fi
               
             elif [ "$REFERENCE_DATE" -ge "$REMINDER_THRESHOLD" ] && \
                  [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
