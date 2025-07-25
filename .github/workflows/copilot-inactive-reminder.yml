@@ -118,15 +118,15 @@ jobs:
               set -e # Re-enable exit on error
 
               if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
-                # Check if the error is due to the assignee not being found (HTTP 422 Unprocessable Entity)
-                if [ "$ISSUE_CREATE_STATUS" -eq 1 ] && echo "$ISSUE_CREATE_OUTPUT" | grep -q '"status":422'; then
+                # Check if the error is due to the assignee not being found
+                if echo "$ISSUE_CREATE_OUTPUT" | grep -qF "could not assign user: '$LOGIN' not found"; then
                   echo "⚠️  Could not create reminder issue for user $LOGIN: User not found. Proceeding with workflow."
                 else
                   echo "🚨 Error creating reminder issue for user $LOGIN: $ISSUE_CREATE_OUTPUT"
                   exit 1 # Exit with error for other issues
                 fi
               else
-                NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | jq -r '.url') # Extract the URL from the last line of output
+                NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1) # Extract the URL from the last line of output
                 echo "✅ Created reminder issue: $NEW_ISSUE_URL"
               fi
               
