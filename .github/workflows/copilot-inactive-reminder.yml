@@ -112,8 +112,8 @@ jobs:
                 --title "Reminder about your GitHub Copilot license - $LOGIN" \
                 --body "${{ vars.COPILOT_REMINDER_MESSAGE }}" \
                 --repo ${{ github.repository }} \
-                --assignee $LOGIN \
-                --label 'copilot-reminder' 2>&1) # Redirect stderr to stdout
+                --label 'copilot-reminder' \
+                --assignee $LOGIN 2>&1) # Redirect stderr to stdout
               ISSUE_CREATE_STATUS=$?
               set -e # Re-enable exit on error
 
