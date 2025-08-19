@@ -42,7 +42,13 @@ jobs:
             CREATED_AT=$(echo "$seat" | jq -r '.created_at')
 
             # List all open issues with label 'copilot-reminder' for this user
-            EXISTING_ISSUES=$(gh issue list --repo ${{ github.repository }} --assignee $LOGIN --label 'copilot-reminder' --json number)
+            # Check both assigned issues and issues with the user's login in the title
+            EXISTING_ISSUES=$(gh issue list --repo ${{ github.repository }} --assignee $LOGIN --label 'copilot-reminder' --json number 2>/dev/null || echo '[]')
+            TITLE_BASED_ISSUES=$(gh issue list --repo ${{ github.repository }} --label 'copilot-reminder' --search "$LOGIN in:title" --json number --state open 2>/dev/null || echo '[]')
+            
+            # Combine both result sets and deduplicate
+            COMBINED_ISSUES=$(echo "$EXISTING_ISSUES $TITLE_BASED_ISSUES" | jq -s 'add | unique_by(.number)')
+            EXISTING_ISSUES="$COMBINED_ISSUES"
 
             # Get last activity date and convert dates to seconds since epoch for comparison
             if [ "$LAST_ACTIVITY" = "null" ]; then
@@ -107,6 +113,7 @@ jobs:
               # 14+ days inactive - send reminder
               echo "⚠️  User $LOGIN has been inactive for 14+ days ($ACTIVITY_STATUS) - creating reminder issue"
 
+              # Try to create issue with assignee first
               set +e # Temporarily relax exit-on-error for the issue creation call
               ISSUE_CREATE_OUTPUT=$(gh issue create \
                 --title "Reminder about your GitHub Copilot license - $LOGIN" \
@@ -118,16 +125,28 @@ jobs:
               set -e # Re-enable exit on error
 
               if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
-                # Check if the error is due to the assignee not being found
-                if echo "$ISSUE_CREATE_OUTPUT" | grep -qF "could not assign user: '$LOGIN' not found"; then
-                  echo "⚠️  Could not create reminder issue for user $LOGIN: User not found. Proceeding with workflow."
+                # Check if the error is due to the assignee not being found or assignable
+                if echo "$ISSUE_CREATE_OUTPUT" | grep -q "could not assign user\|not found\|cannot be assigned"; then
+                  echo "⚠️  Could not assign user $LOGIN to issue (Error: $(echo "$ISSUE_CREATE_OUTPUT" | head -n1)), creating issue without assignee and mentioning user instead"
+                  
+                  # Create issue without assignee but mention the user in the body
+                  ISSUE_BODY_WITH_MENTION="@$LOGIN"$'\n\n'"${{ vars.COPILOT_REMINDER_MESSAGE }}"
+                  
+                  ISSUE_CREATE_OUTPUT=$(gh issue create \
+                    --title "Reminder about your GitHub Copilot license - $LOGIN" \
+                    --body "$ISSUE_BODY_WITH_MENTION" \
+                    --repo ${{ github.repository }} \
+                    --label 'copilot-reminder')
+                  
+                  NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1)
+                  echo "✅ Created reminder issue (with mention): $NEW_ISSUE_URL"
                 else
                   echo "🚨 Error creating reminder issue for user $LOGIN: $ISSUE_CREATE_OUTPUT"
                   exit 1 # Exit with error for other issues
                 fi
               else
                 NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1) # Extract the URL from the last line of output
-                echo "✅ Created reminder issue: $NEW_ISSUE_URL"
+                echo "✅ Created reminder issue (with assignee): $NEW_ISSUE_URL"
               fi
               
             elif [ "$REFERENCE_DATE" -ge "$REMINDER_THRESHOLD" ] && \
