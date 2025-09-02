@@ -27,24 +27,34 @@ jobs:
 
           echo "🔍 Checking Copilot license usage for Luno organization..."
 
-          # List all GitHub Copilot seat assignments for the organization
+          # List all GitHub Copilot seat assignments for the organisation
           RESPONSE=$(gh api --paginate \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            -H "Authorization: Bearer ${{ secrets.COPILOT_UPDATE_TOKEN }}" \
             /orgs/luno/copilot/billing/seats | \
             jq -s '{ seats: map(.seats[]) }')
 
           echo "📊 Found $(echo "$RESPONSE" | jq '.seats | length') total Copilot licenses"
-          echo "$RESPONSE" | jq -c '.seats[]' | while read -r seat; do
+
+          # Calculate threshold dates once per run for consistency
+          REMINDER_THRESHOLD=$(date -d "14 days ago" +%s)
+          REVOCATION_THRESHOLD=$(date -d "30 days ago" +%s)
+
+          while read -r seat; do
             LOGIN=$(echo "$seat" | jq -r '.assignee.login')
             LAST_ACTIVITY=$(echo "$seat" | jq -r '.last_activity_at')
             CREATED_AT=$(echo "$seat" | jq -r '.created_at')
 
+            # Skip seats without a valid assignee
+            if [ -z "$LOGIN" ] || [ "$LOGIN" = "null" ]; then
+              echo "ℹ️  Skipping seat with no assignee"
+              continue
+            fi
+
             # List all open issues with label 'copilot-reminder' for this user
             # Check both assigned issues and issues with the user's login in the title
-            EXISTING_ISSUES=$(gh issue list --repo ${{ github.repository }} --assignee "$LOGIN" --label 'copilot-reminder' --json number 2>/dev/null || echo '[]')
-            TITLE_BASED_ISSUES=$(gh issue list --repo ${{ github.repository }} --label 'copilot-reminder' --search "$LOGIN in:title" --json number --state open 2>/dev/null || echo '[]')
+            EXISTING_ISSUES=$(gh issue list --repo "${{ github.repository }}" --assignee "$LOGIN" --label 'copilot-reminder' --state open --json number 2>/dev/null || echo '[]')
+            TITLE_BASED_ISSUES=$(gh issue list --repo "${{ github.repository }}" --label 'copilot-reminder' --search "$LOGIN in:title" --state open --json number 2>/dev/null || echo '[]')
 
             # Combine both result sets and deduplicate
             COMBINED_ISSUES=$(echo "$EXISTING_ISSUES $TITLE_BASED_ISSUES" | jq -s 'add | unique_by(.number)')
@@ -63,10 +73,6 @@ jobs:
               REFERENCE_DATE=$LAST_ACTIVITY_DATE
             fi
 
-            # Calculate threshold dates
-            REMINDER_THRESHOLD=$(date -d "14 days ago" +%s)
-            REVOCATION_THRESHOLD=$(date -d "30 days ago" +%s)
-
             # Handle different stages based on inactivity duration
             if [ "$REFERENCE_DATE" -lt "$REVOCATION_THRESHOLD" ]; then
               # 30+ days inactive - revoke the seat
@@ -79,7 +85,6 @@ jobs:
                 -X DELETE \
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                -H "Authorization: Bearer ${{ secrets.COPILOT_UPDATE_TOKEN }}" \
                 "/orgs/luno/copilot/billing/selected_users" \
                 -f selected_usernames[]="$LOGIN" 2>&1) # Redirect stderr to stdout
               REVOKE_STATUS=$?
@@ -100,12 +105,12 @@ jobs:
               # Close stale reminder issues regardless of whether the seat
               # was just revoked or had already been revoked earlier
               if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
-                echo "$EXISTING_ISSUES" | jq -r '.[].number' | while read -r issue_number; do
+                while read -r issue_number; do
                   gh issue close $issue_number \
-                    --repo ${{ github.repository }} \
+                    --repo "${{ github.repository }}" \
                     --comment "🚨 This GitHub Copilot license has been revoked due to 30 days of inactivity. If you need access again, please reach out to your team lead."
                   echo "✅ Closed issue #$issue_number with revocation notice"
-                done
+                done < <(echo "$EXISTING_ISSUES" | jq -r '.[].number')
               fi
 
             elif [ "$REFERENCE_DATE" -lt "$REMINDER_THRESHOLD" ] && \
@@ -145,7 +150,7 @@ jobs:
 
                 # If still failing, check if it's an assignment issue
                 if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
-                  if echo "$ISSUE_CREATE_OUTPUT" | grep -iq "could not assign user\|not found\|cannot be assigned\|does not have permission"; then
+                  if echo "$ISSUE_CREATE_OUTPUT" | grep -iqE "could not assign user|not found|cannot be assigned|does not have permission|could not add assignees|resource not accessible by integration|is not a collaborator|validation failed"; then
                     echo "⚠️  Cannot assign to user $LOGIN ($(echo "$ISSUE_CREATE_OUTPUT" | head -n1 | sed 's/.*: //')), creating with mention instead"
                     ASSIGNMENT_MODE="mention"
 
@@ -155,7 +160,7 @@ jobs:
                     ISSUE_CREATE_OUTPUT=$(gh issue create \
                       --title "Reminder about your GitHub Copilot license - $LOGIN" \
                       --body "$ISSUE_BODY_WITH_MENTION" \
-                      --repo ${{ github.repository }} \
+                      --repo "${{ github.repository }}" \
                       --label 'copilot-reminder' 2>&1)
                     ISSUE_CREATE_STATUS=$?
                     if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
@@ -188,12 +193,12 @@ jobs:
               # User became active again - close any open reminder issues
               echo "🎉 User $LOGIN became active again ($ACTIVITY_STATUS) - closing reminder issues"
 
-              echo "$EXISTING_ISSUES" | jq -r '.[].number' | while read -r issue_number; do
+              while read -r issue_number; do
                 gh issue close $issue_number \
-                  --repo ${{ github.repository }} \
+                  --repo "${{ github.repository }}" \
                   --comment "🎉 Great! This user is now actively using GitHub Copilot. Closing this reminder automatically."
                 echo "✅ Closed issue #$issue_number"
-              done
+              done < <(echo "$EXISTING_ISSUES" | jq -r '.[].number')
             else
               if [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
                 echo "ℹ️  User $LOGIN still has an open reminder issue ($ACTIVITY_STATUS)"
@@ -201,7 +206,7 @@ jobs:
                 echo "✅ User $LOGIN is active ($ACTIVITY_STATUS)"
               fi
             fi
-          done
+          done < <(echo "$RESPONSE" | jq -c '.seats[]')
 
         # Set the GH_TOKEN, required for the 'gh issue' and 'gh api' commands
         env:
