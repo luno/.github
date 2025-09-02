@@ -156,8 +156,13 @@ jobs:
                       --title "Reminder about your GitHub Copilot license - $LOGIN" \
                       --body "$ISSUE_BODY_WITH_MENTION" \
                       --repo ${{ github.repository }} \
-                      --label 'copilot-reminder')
+                      --label 'copilot-reminder' 2>&1)
                     ISSUE_CREATE_STATUS=$?
+                    if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
+                      echo "🚨 Failed to create reminder issue with @mention for $LOGIN: $ISSUE_CREATE_OUTPUT"
+                      set -e
+                      exit 1
+                    fi
                   else
                     echo "🚨 Unexpected error creating issue for $LOGIN: $ISSUE_CREATE_OUTPUT"
                     set -e
