@@ -114,40 +114,68 @@ jobs:
               echo "⚠️  User $LOGIN has been inactive for 14+ days ($ACTIVITY_STATUS) - creating reminder issue"
 
               # Try to create issue with assignee first
-              set +e # Temporarily relax exit-on-error for the issue creation call
+              set +e # Temporarily relax exit-on-error
+              
+              # First try with exact username from API
               ISSUE_CREATE_OUTPUT=$(gh issue create \
                 --title "Reminder about your GitHub Copilot license - $LOGIN" \
                 --body "${{ vars.COPILOT_REMINDER_MESSAGE }}" \
                 --repo ${{ github.repository }} \
                 --label 'copilot-reminder' \
-                --assignee $LOGIN 2>&1) # Redirect stderr to stdout
+                --assignee $LOGIN 2>&1)
               ISSUE_CREATE_STATUS=$?
-              set -e # Re-enable exit on error
-
+              
+              # If assignment failed, try alternative approaches
               if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
-                # Check if the error is due to the assignee not being found or assignable
-                if echo "$ISSUE_CREATE_OUTPUT" | grep -q "could not assign user\|not found\|cannot be assigned"; then
-                  echo "⚠️  Could not assign user $LOGIN to issue (Error: $(echo "$ISSUE_CREATE_OUTPUT" | head -n1)), creating issue without assignee and mentioning user instead"
-                  
-                  # Create issue without assignee but mention the user in the body
-                  ISSUE_BODY_WITH_MENTION="@$LOGIN"$'\n\n'"${{ vars.COPILOT_REMINDER_MESSAGE }}"
-                  
+                echo "⚠️  Initial assignment failed for $LOGIN, trying alternatives..."
+                
+                # Try with lowercase username
+                LOGIN_LOWER=$(echo "$LOGIN" | tr '[:upper:]' '[:lower:]')
+                if [ "$LOGIN_LOWER" != "$LOGIN" ]; then
+                  echo "🔄 Trying lowercase: $LOGIN_LOWER"
                   ISSUE_CREATE_OUTPUT=$(gh issue create \
                     --title "Reminder about your GitHub Copilot license - $LOGIN" \
-                    --body "$ISSUE_BODY_WITH_MENTION" \
+                    --body "${{ vars.COPILOT_REMINDER_MESSAGE }}" \
                     --repo ${{ github.repository }} \
-                    --label 'copilot-reminder')
-                  
-                  NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1)
-                  echo "✅ Created reminder issue (with mention): $NEW_ISSUE_URL"
-                else
-                  echo "🚨 Error creating reminder issue for user $LOGIN: $ISSUE_CREATE_OUTPUT"
-                  exit 1 # Exit with error for other issues
+                    --label 'copilot-reminder' \
+                    --assignee $LOGIN_LOWER 2>&1)
+                  ISSUE_CREATE_STATUS=$?
                 fi
-              else
-                NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1) # Extract the URL from the last line of output
-                echo "✅ Created reminder issue (with assignee): $NEW_ISSUE_URL"
+                
+                # If still failing, check if it's an assignment issue
+                if [ "$ISSUE_CREATE_STATUS" -ne 0 ]; then
+                  if echo "$ISSUE_CREATE_OUTPUT" | grep -q "could not assign user\|not found\|cannot be assigned\|does not have permission"; then
+                    echo "⚠️  Cannot assign to user $LOGIN ($(echo "$ISSUE_CREATE_OUTPUT" | head -n1 | sed 's/.*: //')), creating with mention instead"
+                    
+                    # Create issue without assignee but mention the user
+                    ISSUE_BODY_WITH_MENTION="👋 @$LOGIN"$'\n\n'"${{ vars.COPILOT_REMINDER_MESSAGE }}"
+                    
+                    ISSUE_CREATE_OUTPUT=$(gh issue create \
+                      --title "Reminder about your GitHub Copilot license - $LOGIN" \
+                      --body "$ISSUE_BODY_WITH_MENTION" \
+                      --repo ${{ github.repository }} \
+                      --label 'copilot-reminder')
+                    ISSUE_CREATE_STATUS=$?
+                    
+                    if [ "$ISSUE_CREATE_STATUS" -eq 0 ]; then
+                      NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1)
+                      echo "✅ Created reminder issue (with @mention): $NEW_ISSUE_URL"
+                    fi
+                  else
+                    echo "🚨 Unexpected error creating issue for $LOGIN: $ISSUE_CREATE_OUTPUT"
+                    set -e
+                    exit 1
+                  fi
+                fi
               fi
+              
+              # Success path for direct assignment
+              if [ "$ISSUE_CREATE_STATUS" -eq 0 ] && [[ "$ISSUE_CREATE_OUTPUT" != *"@mention"* ]]; then
+                NEW_ISSUE_URL=$(echo "$ISSUE_CREATE_OUTPUT" | tail -n 1)
+                echo "✅ Created reminder issue (assigned to user): $NEW_ISSUE_URL"
+              fi
+              
+              set -e # Re-enable exit on error
               
             elif [ "$REFERENCE_DATE" -ge "$REMINDER_THRESHOLD" ] && \
                  [ "$(echo "$EXISTING_ISSUES" | jq 'length')" -gt 0 ]; then
