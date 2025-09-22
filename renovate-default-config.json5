@@ -19,6 +19,14 @@
   ],
   packageRules: [
     {
+      // We want to wait until any potential problems surface, before we update.
+      minimumReleaseAge: '7 days',
+      matchPackageNames: [
+        // Exclude Luno repos from this check though
+        '^(?!github\\.com/luno/).+$'
+      ],
+    },
+    {
       description: 'Opt-out minimum Go version updates: https://github.com/renovatebot/renovate/issues/16715',
       matchManagers: [
         'gomod',
