@@ -19,15 +19,11 @@
   ],
   packageRules: [
     {
-      // We want to wait until any potential problems surface, before we update.
+      description: 'Wait 7 days before updating non-Luno dependencies',
       minimumReleaseAge: '7 days',
       matchPackageNames: [
         // Exclude Luno repos from this check though
-        '^(?!github\\.com/luno/).+$'
-      description: 'Wait 7 days before updating non-Luno dependencies',
-      minimumReleaseAge: '7 days',
-      matchPackagePatterns: [
-            "^(?!github\\.com/luno/).*"
+        "^(?!github\\.com/luno/).*"
       ],
     },
     {
