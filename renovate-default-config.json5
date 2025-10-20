@@ -23,7 +23,7 @@
       minimumReleaseAge: '7 days',
       matchPackageNames: [
         // Exclude Luno repos from this check though
-        "^(?!github\\.com/luno/).*"
+        '!github.com/luno/**',
       ],
     },
     {
@@ -39,44 +39,11 @@
       enabled: false,
     },
     {
-      description: 'Auto-merge package-lock and GitHub actions',
-      autoMerge: true,
-      rebaseWhen: 'behind-base-branch',
-      addLabels: [
-        'Auto-merge',
-      ],
-      // Don't auto-merge for packages < 1.0.0, as these can make breaking changes too, see https://semver.org/
-      matchCurrentVersion: '!/^v?0/',
-      matchPackagePatterns: [
-        '^github-actions.*',
-        '^package-lock'
-      ],
-      matchUpdateTypes: [
-        'patch',
-        'digest',
-      ],
-    },
-    {
-      description: 'Auto-merge patch + digest gomod updates',
-      autoMerge: true,
-      rebaseWhen: 'behind-base-branch',
-      addLabels: [
-        'Auto-merge',
-      ],
-      matchManagers: [
-        'gomod',
-      ],
-      matchUpdateTypes: [
-        'patch',
-        'digest',
-      ],
-    },
-    {
       description: 'Auto-merge Luno dependencies',
       autoMerge: true,
       rebaseWhen: 'behind-base-branch',
       matchPackagePatterns: [
-        '^github.com/luno/.*',
+        '!github.com/luno/**',
       ],
       addLabels: [
         'Auto-merge',
