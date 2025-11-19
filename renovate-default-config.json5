@@ -4,6 +4,7 @@
   extends: [
     'config:recommended',
   ],
+  forkProcessing: 'enabled',
   branchConcurrentLimit: 3,
   labels: [
     'Bot::Renovate',
