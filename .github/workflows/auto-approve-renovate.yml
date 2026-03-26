@@ -22,7 +22,8 @@ jobs:
           # Check that PR only changes go.mod and/or go.sum
           FILES=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json files --jq '.files[].path')
           for file in $FILES; do
-            if [[ "$file" != "go.mod" && "$file" != "go.sum" ]]; then
+            base=$(basename "$file")
+            if [[ "$base" != "go.mod" && "$base" != "go.sum" ]]; then
               echo "::notice::Skipping auto-approve: PR changes $file (not just go.mod/go.sum)"
               exit 0
             fi
