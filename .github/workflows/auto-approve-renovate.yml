@@ -1,0 +1,48 @@
+name: Auto-approve Renovate Luno dependency updates
+
+on:
+  workflow_call:
+
+jobs:
+  auto-approve:
+    if: github.event.pull_request.user.login == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Verify PR qualifies for auto-approval
+        id: verify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # Check that PR only changes go.mod and/or go.sum
+          FILES=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json files --jq '.files[].path')
+          for file in $FILES; do
+            if [[ "$file" != "go.mod" && "$file" != "go.sum" ]]; then
+              echo "::notice::Skipping auto-approve: PR changes $file (not just go.mod/go.sum)"
+              exit 0
+            fi
+          done
+
+          # Check that the PR updates a github.com/luno/ dependency
+          TITLE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json title --jq '.title')
+          if ! echo "$TITLE" | grep -q 'github\.com/luno/'; then
+            echo "::notice::Skipping auto-approve: not a github.com/luno/ dependency update"
+            exit 0
+          fi
+
+          echo "should_approve=true" >> "$GITHUB_OUTPUT"
+
+      - name: Approve PR
+        if: steps.verify.outputs.should_approve == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh pr review "$PR_NUMBER" --repo "$REPO" --approve \
+            --body "Auto-approved: Renovate update of github.com/luno/ dependency (only go.mod/go.sum changes)"
