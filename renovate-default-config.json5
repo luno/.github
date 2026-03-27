@@ -41,10 +41,10 @@
     },
     {
       description: 'Auto-merge Luno dependencies',
-      autoMerge: true,
+      automerge: true,
       rebaseWhen: 'behind-base-branch',
-      matchPackagePatterns: [
-        '!github.com/luno/**',
+      matchPackageNames: [
+        'github.com/luno/**',
       ],
       addLabels: [
         'Auto-merge',
