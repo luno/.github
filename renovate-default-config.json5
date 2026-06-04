@@ -12,7 +12,8 @@
   semanticCommits: 'disabled',
   commitMessagePrefix: 'renovate:',
   reviewers: [
-    'echarrod',
+    'RieshBissessur',
+    'andrewwormald',
   ],
   postUpdateOptions: [
     'gomodTidy',
